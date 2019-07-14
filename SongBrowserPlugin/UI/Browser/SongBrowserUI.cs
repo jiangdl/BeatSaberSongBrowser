@@ -592,11 +592,7 @@ namespace SongBrowser.UI
 
             try
             {
-                bool didUpdateLevelPack = this.UpdateLevelPackSelection();
-                if (!didUpdateLevelPack)
-                {
-                    ProcessSongList();
-                }
+                this.UpdateLevelPackSelection();
                 _beatUi.SelectAndScrollToLevel(_beatUi.LevelPackLevelsTableView, _model.LastSelectedLevelId);
                 RefreshQuickScrollButtons();
             }
