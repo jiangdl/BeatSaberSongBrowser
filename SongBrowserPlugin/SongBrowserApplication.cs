@@ -40,7 +40,7 @@ namespace SongBrowser
 
             new GameObject("Beat Saber SongBrowser Plugin").AddComponent<SongBrowserApplication>();
 
-            SongBrowserApplication.MainProgressBar = SongBrowser.UI.ProgressBar.Create();
+            SongBrowserApplication.MainProgressBar = SongBrowser.UI.ProgressBar.Create();            
 
             Console.WriteLine("SongBrowser Plugin Loaded()");
         }
@@ -72,8 +72,7 @@ namespace SongBrowser
 
             InstallHandlers();
 
-            SongDataCore.Plugin.ScoreSaber.OnDataFinishedProcessing += OnScoreSaberDataDownloaded;
-            SongDataCore.Plugin.BeatSaver.OnDataFinishedProcessing += OnBeatSaverDataDownloaded;
+            SongDataCore.Plugin.Songs.OnDataFinishedProcessing += OnScoreSaberDataDownloaded;
 
             if (SongCore.Loader.AreSongsLoaded)
             {
@@ -125,43 +124,11 @@ namespace SongBrowser
             Logger.Trace("OnScoreSaberDataDownloaded");
             try
             {
-                if (_songBrowserModel.Settings.sortMode.NeedsScoreSaberData())
-                {
-                    _songBrowserUI.ProcessSongList();
-                    _songBrowserUI.RefreshSongUI();
-                }
-                else
-                {
-                    _songBrowserUI.RefreshSortButtonUI();
-                }
+                StartCoroutine(_songBrowserUI.AsyncWaitForSongUIUpdate());
             }
             catch (Exception e)
             {
                 Logger.Exception("Exception during OnScoreSaberDataDownloaded: ", e);
-            }
-        }
-
-        /// <summary>
-        /// Update mapping of scrapped song data.
-        /// </summary>
-        private void OnBeatSaverDataDownloaded()
-        {
-            Logger.Trace("OnBeatSaverDataDownloaded");
-            try
-            {
-                if (_songBrowserModel.Settings.sortMode.NeedsBeatSaverData())
-                {
-                    _songBrowserUI.ProcessSongList();
-                    _songBrowserUI.RefreshSongUI();
-                }
-                else
-                {
-                    _songBrowserUI.RefreshSortButtonUI();
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.Exception("Exception during OnDownloaderScrappedDataDownloaded: ", e);
             }
         }
 
@@ -226,6 +193,7 @@ namespace SongBrowser
         {
             Logger.Trace("HandleModeSelection()");
             _songBrowserUI.CreateUI(mode);
+            SongBrowserApplication.MainProgressBar.ShowMessage("");
             StartCoroutine(UpdateBrowserUI());
         }
 
